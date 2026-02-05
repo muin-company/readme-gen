@@ -1,0 +1,54 @@
+{
+  "name": "readme-gen",
+  "version": "1.0.0",
+  "description": "Auto-generate beautiful README files from your project structure",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "readme-gen": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "readme",
+    "generator",
+    "documentation",
+    "cli",
+    "markdown"
+  ],
+  "author": "MUIN",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muin-company/readme-gen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/muin-company/readme-gen/issues"
+  },
+  "homepage": "https://github.com/muin-company/readme-gen#readme",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
