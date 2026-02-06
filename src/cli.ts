@@ -16,6 +16,7 @@ program
   .version('1.0.0')
   .argument('[path]', 'Path to the project directory', '.')
   .option('-o, --output <file>', 'Output file path', 'README.md')
+  .option('-t, --template <type>', 'Template type: minimal, standard, detailed, comprehensive', 'standard')
   .option('--no-write', 'Print to stdout instead of writing to file')
   .option('--badges', 'Enable badge generation (auto-detect based on project)')
   .option('--npm', 'Include npm version and downloads badges')
@@ -42,12 +43,21 @@ program
         process.exit(1);
       }
       
+      // Validate template type
+      const validTemplates = ['minimal', 'standard', 'detailed', 'comprehensive'];
+      if (!validTemplates.includes(options.template)) {
+        console.error(chalk.red(`Error: Invalid template type "${options.template}"`));
+        console.error(chalk.gray(`Valid options: ${validTemplates.join(', ')}`));
+        process.exit(1);
+      }
+      
       console.log(chalk.blue('Analyzing project...'));
       
       // Analyze project
       const projectInfo = analyzeProject(absPath);
       
       console.log(chalk.green(`Detected project type: ${projectInfo.type}`));
+      console.log(chalk.blue(`Using template: ${options.template}`));
       
       // Build badge config
       let badgeConfig: BadgeConfig | undefined;
@@ -66,7 +76,7 @@ program
       }
       
       // Generate README
-      const readme = generateReadme(projectInfo, badgeConfig);
+      const readme = generateReadme(projectInfo, badgeConfig, options.template);
       
       // Output
       if (options.write) {
