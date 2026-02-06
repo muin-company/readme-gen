@@ -56,6 +56,94 @@ Specify output file:
 readme-gen --output DOCS.md
 ```
 
+## Examples
+
+### Example 1: Basic README generation
+
+```bash
+$ cd my-new-project
+$ readme-gen
+Analyzing project...
+Detected project type: node
+Extracting package.json metadata...
+Generating file tree...
+✓ README.md created successfully!
+```
+
+**Generated sections:**
+- Project title and description from package.json
+- Installation instructions with npm/yarn
+- Usage examples from scripts
+- Project file structure
+- Contributing guidelines
+
+### Example 2: Preview before writing
+
+```bash
+$ readme-gen --no-write
+# my-awesome-cli
+
+Command-line tool for awesome things.
+
+## Installation
+npm install -g my-awesome-cli
+
+## Usage
+...
+(full README printed to stdout)
+```
+
+**Use case:** Review generated content before committing, or pipe to another tool for processing.
+
+### Example 3: Python project detection
+
+```bash
+$ cd python-api
+$ readme-gen
+Analyzing project...
+Detected project type: python
+Found requirements.txt with 12 dependencies
+Found pytest configuration
+✓ README.md created successfully!
+```
+
+**Generates Python-specific content:**
+- `pip install` instructions
+- Virtual environment setup
+- `requirements.txt` reference
+- pytest usage examples
+
+### Example 4: Multi-language monorepo
+
+```bash
+$ readme-gen ./packages/frontend
+Analyzing project...
+Detected project type: node
+Framework: React (detected in dependencies)
+Build tool: Vite
+✓ README.md created successfully!
+
+$ readme-gen ./services/api
+Analyzing project...
+Detected project type: go
+Found go.mod with module: github.com/myorg/api
+✓ README.md created successfully!
+```
+
+**Use case:** Generate consistent READMEs for each package in a monorepo.
+
+### Example 5: Custom output for documentation
+
+```bash
+$ readme-gen --output docs/PROJECT_OVERVIEW.md
+Analyzing project...
+Detected project type: rust
+Found Cargo.toml
+✓ docs/PROJECT_OVERVIEW.md created successfully!
+```
+
+**Use case:** Generate documentation files for tools that expect specific filenames or locations.
+
 ## Before/After
 
 **Before:**
