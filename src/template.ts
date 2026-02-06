@@ -1,6 +1,7 @@
 import { ProjectInfo } from './types';
+import { generateBadges, generateBadgeConfig, parseGitHubRepo, type BadgeConfig, type BadgeOptions } from './badges';
 
-export function generateReadme(info: ProjectInfo): string {
+export function generateReadme(info: ProjectInfo, badgeConfig?: BadgeConfig): string {
   const sections: string[] = [];
   
   // Title and description
@@ -11,7 +12,7 @@ export function generateReadme(info: ProjectInfo): string {
   }
   
   // Badges
-  const badges = generateBadges(info);
+  const badges = generateBadgesSection(info, badgeConfig);
   if (badges) {
     sections.push(badges);
   }
@@ -41,22 +42,26 @@ export function generateReadme(info: ProjectInfo): string {
   return sections.join('\n');
 }
 
-function generateBadges(info: ProjectInfo): string {
-  const badges: string[] = [];
+function generateBadgesSection(info: ProjectInfo, badgeConfig?: BadgeConfig): string {
+  // Use provided config or generate default
+  const config = badgeConfig || generateBadgeConfig({
+    hasNpm: info.type === 'node' && !!info.version,
+    hasCI: false, // User needs to specify
+    hasCoverage: false, // User needs to specify
+    hasTests: info.hasTests,
+  });
   
-  if (info.version && info.type === 'node') {
-    badges.push(`![npm version](https://img.shields.io/npm/v/${info.name})`);
-  }
+  // Parse GitHub repo from repository field
+  const githubRepo = info.repository ? parseGitHubRepo(info.repository) || undefined : undefined;
   
-  if (info.license) {
-    badges.push(`![license](https://img.shields.io/badge/license-${info.license}-blue)`);
-  }
+  const options: BadgeOptions = {
+    npmPackage: info.type === 'node' ? info.name : undefined,
+    githubRepo,
+    license: info.license,
+    packageName: info.name,
+  };
   
-  if (info.hasTests) {
-    badges.push(`![tests](https://img.shields.io/badge/tests-passing-green)`);
-  }
-  
-  return badges.length > 0 ? badges.join(' ') + '\n' : '';
+  return generateBadges(config, options);
 }
 
 function generateInstallation(info: ProjectInfo): string {

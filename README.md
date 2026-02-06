@@ -32,6 +32,8 @@ npx readme-gen
 
 ## Usage
 
+### Basic Usage
+
 Generate README for current directory:
 
 ```bash
@@ -54,6 +56,52 @@ Specify output file:
 
 ```bash
 readme-gen --output DOCS.md
+```
+
+### Badge Generation
+
+Add badges to your README automatically:
+
+```bash
+# Add npm version and downloads badges
+readme-gen --npm
+
+# Add all common badges (npm, CI, coverage, quality, GitHub stars)
+readme-gen --all-badges
+
+# Add specific CI badge
+readme-gen --ci github-actions    # or circleci, travis
+
+# Add coverage badge
+readme-gen --coverage codecov      # or coveralls
+
+# Add code quality badge
+readme-gen --quality codeclimate   # or codefactor
+
+# Add GitHub stars badge
+readme-gen --github
+
+# Combine multiple options
+readme-gen --npm --ci github-actions --coverage codecov
+```
+
+**Supported badges:**
+- 📦 npm version and downloads
+- ✅ CI/CD status (GitHub Actions, CircleCI, Travis CI)
+- 📊 Code coverage (Codecov, Coveralls)
+- 💎 Code quality (Code Climate, CodeFactor)
+- ⭐ GitHub stars
+- 📄 License
+
+Example output with `--all-badges`:
+```markdown
+[![npm version](https://img.shields.io/npm/v/package)](https://www.npmjs.com/package/package)
+[![npm downloads](https://img.shields.io/npm/dm/package)](https://www.npmjs.com/package/package)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/owner/repo/actions/workflows/ci.yml/badge.svg)](https://github.com/owner/repo/actions)
+[![codecov](https://codecov.io/gh/owner/repo/branch/main/graph/badge.svg)](https://codecov.io/gh/owner/repo)
+[![Maintainability](https://api.codeclimate.com/v1/badges/owner/repo/maintainability)](https://codeclimate.com/github/owner/repo/maintainability)
+[![GitHub stars](https://img.shields.io/github/stars/owner/repo?style=social)](https://github.com/owner/repo)
 ```
 
 ## Examples

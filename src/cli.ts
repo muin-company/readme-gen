@@ -6,6 +6,7 @@ import * as path from 'path';
 import chalk from 'chalk';
 import { analyzeProject } from './analyzer';
 import { generateReadme } from './template';
+import type { BadgeConfig } from './badges';
 
 const program = new Command();
 
@@ -16,6 +17,13 @@ program
   .argument('[path]', 'Path to the project directory', '.')
   .option('-o, --output <file>', 'Output file path', 'README.md')
   .option('--no-write', 'Print to stdout instead of writing to file')
+  .option('--badges', 'Enable badge generation (auto-detect based on project)')
+  .option('--npm', 'Include npm version and downloads badges')
+  .option('--ci <type>', 'Include CI badge (github-actions, circleci, travis)')
+  .option('--coverage <type>', 'Include coverage badge (codecov, coveralls)')
+  .option('--quality <type>', 'Include code quality badge (codeclimate, codefactor)')
+  .option('--github', 'Include GitHub stars badge')
+  .option('--all-badges', 'Include all available badges')
   .action(async (projectPath: string, options) => {
     try {
       // Resolve path
@@ -41,8 +49,24 @@ program
       
       console.log(chalk.green(`Detected project type: ${projectInfo.type}`));
       
+      // Build badge config
+      let badgeConfig: BadgeConfig | undefined;
+      if (options.badges || options.npm || options.ci || options.coverage || options.quality || options.github || options.allBadges) {
+        badgeConfig = {
+          npm: options.allBadges || options.npm || undefined,
+          version: options.allBadges || options.npm || (projectInfo.type === 'node' && !!projectInfo.version),
+          downloads: options.allBadges || options.npm || undefined,
+          license: options.allBadges || options.badges || true,
+          github: options.allBadges || options.github || !!projectInfo.repository,
+          ci: options.allBadges ? 'github-actions' : (options.ci || false),
+          coverage: options.allBadges ? 'codecov' : (options.coverage || false),
+          quality: options.allBadges ? 'codeclimate' : (options.quality || false),
+        };
+        console.log(chalk.blue('Badge generation enabled'));
+      }
+      
       // Generate README
-      const readme = generateReadme(projectInfo);
+      const readme = generateReadme(projectInfo, badgeConfig);
       
       // Output
       if (options.write) {
