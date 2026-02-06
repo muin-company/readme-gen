@@ -478,6 +478,358 @@ Or with husky:
 }
 ```
 
+## Troubleshooting
+
+### "Error: No package.json found"
+
+**Problem:** Running readme-gen in directory without package.json or equivalent.
+
+**Solution:**
+```bash
+# Verify project type is detectable
+ls -la
+
+# For Node.js projects:
+npm init -y  # Creates package.json
+
+# For Python projects:
+touch setup.py
+# or
+touch pyproject.toml
+
+# For Go projects:
+go mod init github.com/user/project
+
+# For Rust projects:
+cargo init
+
+# Then run readme-gen:
+readme-gen
+```
+
+---
+
+### Generated README is Too Basic
+
+**Problem:** Output lacks detail or specific information.
+
+**Solution:**
+```bash
+# Use detailed template:
+readme-gen --template detailed
+
+# Or comprehensive:
+readme-gen --template comprehensive
+
+# Add more metadata to package.json:
+{
+  "name": "my-app",
+  "description": "A detailed description helps generate better README",
+  "keywords": ["cli", "tool", "productivity"],
+  "repository": "https://github.com/user/my-app",
+  "author": "Your Name <email@example.com>",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "build": "webpack"
+  }
+}
+
+# Then regenerate:
+readme-gen --template detailed
+```
+
+---
+
+### Project Type Not Detected Correctly
+
+**Problem:** readme-gen identifies wrong project type or falls back to "unknown".
+
+**Debug:**
+```bash
+# Check what files exist:
+ls -la
+
+# Node.js requires:
+# - package.json
+
+# Python requires:
+# - setup.py OR pyproject.toml OR requirements.txt
+
+# Go requires:
+# - go.mod
+
+# Rust requires:
+# - Cargo.toml
+
+# If none exist, create the appropriate config file
+```
+
+**Solution:**
+```bash
+# For Node.js:
+npm init -y
+
+# For Python:
+touch setup.py
+# or better:
+cat > pyproject.toml <<EOF
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myproject"
+version = "0.1.0"
+EOF
+
+# For Go:
+go mod init github.com/user/project
+
+# Then run:
+readme-gen
+```
+
+---
+
+### README Overwrites Existing Content
+
+**Problem:** Accidentally overwrote hand-written README.
+
+**Prevention:**
+```bash
+# Always preview first:
+readme-gen --no-write
+
+# Or save to different file:
+readme-gen --output README.new.md
+
+# Compare:
+diff README.md README.new.md
+
+# Merge manually if satisfied
+```
+
+**Recovery:**
+```bash
+# If using git:
+git checkout HEAD -- README.md
+git restore README.md
+
+# Or check git history:
+git log --all --full-history -- README.md
+git show <commit>:README.md > README.recovered.md
+```
+
+---
+
+### Generated File Tree is Too Large
+
+**Problem:** File tree includes node_modules, dist, build folders.
+
+**Workaround:**
+```bash
+# Current workaround: manually edit .gitignore-style filtering
+
+# Feature request: Add --exclude option
+# (Not yet implemented)
+
+# Manual fix - edit generated README and remove unwanted paths:
+nano README.md
+# Delete lines with node_modules/, dist/, etc.
+
+# Or use sed:
+sed -i '/node_modules/d' README.md
+sed -i '/dist\//d' README.md
+```
+
+**Future feature (vote for it!):**
+```bash
+# Planned:
+readme-gen --exclude node_modules,dist,build
+```
+
+---
+
+### Template Option Not Working
+
+**Problem:** `--template` flag not recognized or doesn't change output.
+
+**Solution:**
+```bash
+# Check version:
+readme-gen --version
+
+# Update to latest:
+npm update -g readme-gen
+
+# Valid templates:
+readme-gen --template minimal
+readme-gen --template standard       # default
+readme-gen --template detailed
+readme-gen --template comprehensive
+
+# If still not working, check spelling:
+readme-gen --template=detailed  # Try with = instead of space
+```
+
+---
+
+### Badge URLs Are Broken
+
+**Problem:** npm badges show wrong package name or 404.
+
+**Cause:** package.json `name` field doesn't match npm package name.
+
+**Solution:**
+```bash
+# Check package.json:
+cat package.json | jq '.name'
+
+# Should match published npm package:
+npm view <package-name>
+
+# If they don't match, update package.json:
+{
+  "name": "@your-scope/correct-name",
+  ...
+}
+
+# Or if package isn't published yet, badges will 404 (expected)
+# Remove --npm flag:
+readme-gen --template detailed  # Without --npm
+```
+
+---
+
+### CI/CD Auto-Update Creates Conflicts
+
+**Problem:** GitHub Actions commits README changes, causing merge conflicts.
+
+**Solution:**
+```yaml
+# Better approach - only update on main branch:
+name: Update README
+
+on:
+  push:
+    branches: [main]  # Only main, not PRs
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check if README needs update
+        id: check
+        run: |
+          readme-gen --no-write > README.new
+          if diff -q README.md README.new > /dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Update README
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          mv README.new README.md
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add README.md
+          git commit -m "docs: auto-update README [skip ci]"
+          git push
+```
+
+---
+
+### Permission Denied When Writing README
+
+**Problem:** Can't write to README.md file.
+
+**Solution:**
+```bash
+# Check file permissions:
+ls -la README.md
+
+# If read-only:
+chmod 644 README.md
+
+# If owned by another user:
+sudo chown $(whoami) README.md
+
+# Or write to different location:
+readme-gen --output /tmp/README.md
+```
+
+---
+
+### JSON Output Missing or Malformed
+
+**Problem:** `--json` flag not producing valid JSON.
+
+**Current limitation:**
+```bash
+# JSON output not yet implemented
+readme-gen --json
+# Error: Unknown option '--json'
+
+# Workaround - parse markdown output:
+readme-gen --no-write | pandoc -f markdown -t json
+
+# Or feature request for future version
+```
+
+---
+
+### Monorepo: Wrong Package Analyzed
+
+**Problem:** Running from monorepo root analyzes root package.json instead of specific package.
+
+**Solution:**
+```bash
+# Always specify path:
+readme-gen packages/frontend
+readme-gen packages/backend
+readme-gen services/api
+
+# Or cd into package:
+cd packages/frontend
+readme-gen
+
+# Batch generate for all packages:
+for pkg in packages/*/; do
+  echo "Generating README for $pkg"
+  readme-gen "$pkg"
+done
+```
+
+---
+
+### Generated Content is Outdated
+
+**Problem:** README references old dependency versions or removed scripts.
+
+**Solution:**
+```bash
+# Clean and reinstall dependencies:
+rm -rf node_modules package-lock.json
+npm install
+
+# Update package.json scripts:
+npm pkg set scripts.start="node index.js"
+npm pkg set scripts.test="vitest"
+
+# Remove obsolete fields:
+npm pkg delete devDependencies.old-package
+
+# Regenerate:
+readme-gen --template detailed
+```
+
+---
+
 ## Contributing
 
 Contributions welcome! Feel free to:
