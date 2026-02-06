@@ -89,4 +89,83 @@ describe('generateReadme', () => {
     expect(readme).toContain('# mystery-project');
     expect(readme).toContain('Installation instructions coming soon');
   });
+
+  test('should generate minimal template', () => {
+    const info: ProjectInfo = {
+      type: 'node',
+      name: 'minimal-app',
+      description: 'A minimal app',
+      license: 'MIT',
+      fileTree: 'minimal-app/\n',
+      hasTests: false
+    };
+
+    const readme = generateReadme(info, 'minimal');
+
+    expect(readme).toContain('# minimal-app');
+    expect(readme).toContain('Installation');
+    expect(readme).toContain('Usage');
+    expect(readme).toContain('MIT');
+    // Minimal should NOT include these
+    expect(readme).not.toContain('Project Structure');
+    expect(readme).not.toContain('Development');
+  });
+
+  test('should generate standard template (default)', () => {
+    const info: ProjectInfo = {
+      type: 'node',
+      name: 'standard-app',
+      fileTree: 'standard-app/\n',
+      hasTests: true
+    };
+
+    const readme = generateReadme(info, 'standard');
+
+    expect(readme).toContain('# standard-app');
+    expect(readme).toContain('Installation');
+    expect(readme).toContain('Project Structure');
+    expect(readme).toContain('Development');
+  });
+
+  test('should generate detailed template', () => {
+    const info: ProjectInfo = {
+      type: 'node',
+      name: 'detailed-app',
+      fileTree: 'detailed-app/\n',
+      hasTests: true
+    };
+
+    const readme = generateReadme(info, 'detailed');
+
+    expect(readme).toContain('# detailed-app');
+    expect(readme).toContain('Table of Contents');
+    expect(readme).toContain('Features');
+    expect(readme).toContain('Examples');
+    expect(readme).toContain('API Documentation');
+    expect(readme).toContain('Troubleshooting');
+  });
+
+  test('should generate comprehensive template', () => {
+    const info: ProjectInfo = {
+      type: 'node',
+      name: 'comprehensive-app',
+      author: 'John Doe',
+      fileTree: 'comprehensive-app/\n',
+      hasTests: true
+    };
+
+    const readme = generateReadme(info, 'comprehensive');
+
+    expect(readme).toContain('# comprehensive-app');
+    expect(readme).toContain('Table of Contents');
+    expect(readme).toContain('About');
+    expect(readme).toContain('Prerequisites');
+    expect(readme).toContain('Deployment');
+    expect(readme).toContain('Roadmap');
+    expect(readme).toContain('Contributing');
+    expect(readme).toContain('Changelog');
+    expect(readme).toContain('Authors');
+    expect(readme).toContain('John Doe');
+    expect(readme).toContain('Acknowledgments');
+  });
 });

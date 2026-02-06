@@ -44,6 +44,32 @@ Generate for a specific project:
 readme-gen ./path/to/project
 ```
 
+### Template Options
+
+Choose from 4 different template styles:
+
+**Minimal** - Just the essentials:
+```bash
+readme-gen --template minimal
+```
+
+**Standard** (default) - Comprehensive but not overwhelming:
+```bash
+readme-gen --template standard
+```
+
+**Detailed** - Includes examples, API docs, and troubleshooting:
+```bash
+readme-gen --template detailed
+```
+
+**Comprehensive** - Everything including roadmap, changelog, and more:
+```bash
+readme-gen --template comprehensive
+```
+
+### Other Options
+
 Preview without writing to file:
 
 ```bash

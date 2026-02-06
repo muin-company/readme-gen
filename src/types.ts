@@ -1,5 +1,7 @@
 export type ProjectType = 'node' | 'python' | 'go' | 'rust' | 'unknown';
 
+export type TemplateType = 'minimal' | 'standard' | 'detailed' | 'comprehensive';
+
 export interface ProjectInfo {
   type: ProjectType;
   name: string;
